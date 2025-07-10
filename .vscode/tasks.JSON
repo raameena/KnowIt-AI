@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run app.py in venv (shared Terminal.app)",
+        "type": "shell",
+        "command": "osascript",
+        "args": [
+          "-e", "tell application \"Terminal\"",
+          "-e", "activate",
+          "-e", "do script \"cd \\\"${workspaceFolder}/backend\\\" && clear && source venv/bin/activate && python3 app.py\" in front window",
+          "-e", "end tell"
+        ],
+        "presentation": {
+          "panel": "shared",      // reuse the same terminal window
+          "reveal": "always"      // bring it to front on each run
+        },
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+  

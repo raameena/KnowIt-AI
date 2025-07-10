@@ -1,0 +1,55 @@
+.App {
+  text-align: center;
+}
+
+.ai-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: sans-serif;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background-color: #ffffff;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  margin-bottom: 15px;
+  padding: 10px;
+  box-sizing: border-box; /* Important! */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.results-area {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: #f7f7f7;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  text-align: left;
+  white-space: pre-wrap; /* This helps display formatted text */
+  min-height: 50px;
+}
+
+.error-message {
+  color: #d93025;
+  font-weight: bold;
+}

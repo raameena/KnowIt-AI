@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug app.py (external Terminal)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder}/backend/app.py",
+        "cwd": "${workspaceFolder}/backend",
+        "console": "externalTerminal",
+        "justMyCode": true,
+        "python": "${workspaceFolder}/backend/venv/bin/python"
+      }
+    ]
+  }
+  

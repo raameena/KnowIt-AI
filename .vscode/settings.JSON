@@ -1,0 +1,23 @@
+{
+    // point VS Code at your venv’s python
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/bin/python",
+  
+    // keep the rest of your existing prefs
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length=88"],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--rcfile=${workspaceFolder}/.pylintrc"
+    ],
+    "python.linting.lintOnSave": true,
+    "python.linting.lintOnSaveMode": "workspace",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true
+  }
+  
