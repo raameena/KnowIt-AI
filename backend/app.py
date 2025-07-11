@@ -24,17 +24,32 @@ app = Flask(__name__)
 # allows the app to be accessed from multiple servers
 CORS(app)
 
-# app.route is url page, this is solve endpoint
-@app.route("/api/solve", methods=['POST'])
-def test():
-    # jsonify sends a json package to website
-    # basically makes object with key (message) that says hi
-    # return("hi") would print hi in html on website
-    data = request.get_json()
-    user_promt = data.get('prompt')
-    subject = data.get('subject')
-    return jsonify({'message': 'hi'})
 
-# __name__ changes to __main__ when website activates 
+# app.route is url page, this is solve endpoint
+@app.route("/api/solve", methods=["POST"])
+def test():
+    # error handeling
+    try:
+        data = request.get_json()
+
+        # get user's prompt info from front end ( json package )
+        user_prompt = data.get("prompt")
+        subject = data.get("subject")
+
+        # gemini 1.5 pro model
+        model = genai.GenerativeModel("gemini-1.5-pro")
+
+        response = model.generate_content(user_prompt)
+        ai_answer = response.text
+        try: 
+            return jsonify({"answer": ai_answer})
+        except Exception as f:
+            return jsonify({"error": "ai_answer did not work"})
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# __name__ changes to __main__ when website activates
 if __name__ == "__main__":
     app.run(debug=True)

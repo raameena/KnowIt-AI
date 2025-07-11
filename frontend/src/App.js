@@ -76,10 +76,10 @@ function App() {
           
           {/* For now, this will display the test message from your backend.
               We will change this later to show the real math solution. */}
-          {result && result.message && (
+          {result && result.answer && (
             <div>
-              <h3>Response from Server:</h3>
-              <p>{result.message}</p>
+              <h3>Answer:</h3>
+              <p>{result.answer}</p>
             </div>
           )}
         </div>
