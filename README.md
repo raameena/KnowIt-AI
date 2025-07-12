@@ -1,33 +1,34 @@
 # AI Homework Helper 🤖📚
 
-An intelligent homework assistance platform that combines AI-powered tutoring with custom algorithms for accurate mathematical solutions. Built with a modern React frontend and Flask backend, this project demonstrates full-stack development, API integration, and data science concepts.
+An intelligent homework assistance platform that combines AI-powered tutoring with specialized algorithms for accurate mathematical solutions. Built with a modern React frontend and Flask backend, this project provides comprehensive academic support through advanced AI classification and custom math solving capabilities.
 
 ## 🎯 Project Overview
 
 AI Homework Helper is designed to provide comprehensive academic support through:
-- **AI-Powered Tutoring**: Leveraging Google's Gemini AI for intelligent responses
-- **Custom Math Algorithms**: Precise solutions for calculus, linear algebra, and other mathematical subjects
+- **AI-Powered Classification**: Intelligent routing of queries to specialized handlers
+- **Custom Algebra Solver**: Precise solutions using SymPy for mathematical equations
+- **Multi-Model AI Integration**: Using both Gemini Flash and Pro models for different query types
 - **Step-by-Step Explanations**: Detailed breakdowns to enhance learning
-- **PDF Document Processing**: Extract and analyze content from uploaded documents
-- **Citation Management**: Proper quote extraction with academic citations
-- **Analytics Dashboard**: User progress tracking and subject analytics
+- **Subject-Specific Handling**: Tailored responses for Algebra, History, and General queries
+- **Structured Responses**: Consistent API responses with final answers and explanations
 
 ## ✨ Features
 
 ### Current Features
-- 🤖 **AI Integration**: Google Gemini 1.5 Pro for intelligent responses
-- 📊 **Subject-Specific Handling**: Tailored responses for different academic subjects
+- 🤖 **AI Classification**: Intelligent routing of queries to appropriate handlers
+- 🧮 **Algebra Solver**: Custom SymPy-based solver for mathematical equations
+- 📊 **Multi-Model AI**: Gemini Flash for classification, Pro for detailed responses
 - 🔄 **RESTful API**: Clean backend architecture with Flask
 - 🎨 **Modern UI**: React-based frontend with responsive design
 - 🌐 **CORS Support**: Seamless frontend-backend communication
+- 📝 **Structured Responses**: Consistent JSON format with final_answer and explanation
+- 🔍 **Error Handling**: Comprehensive error handling with proper logging
 
-### Planned Features
-- 📄 **PDF Processing**: Extract and analyze document content
-- 📝 **Citation System**: Quote extraction with proper academic citations
-- 📈 **Analytics Dashboard**: User progress and subject usage statistics
-- 🧮 **Custom Math Algorithms**: Precise solutions for calculus and linear algebra
-- 📊 **Data Visualization**: Interactive charts and progress tracking
-- 🔍 **Advanced Search**: Smart content filtering and organization
+### Query Categories
+- **Algebra - Solve for Variable**: Specialized handling for equation solving
+- **Math - Other**: General mathematical and scientific queries
+- **History**: Historical facts and information
+- **General**: All other types of queries
 
 ## 🛠️ Tech Stack
 
@@ -41,6 +42,8 @@ AI Homework Helper is designed to provide comprehensive academic support through
 - **Flask 3.1.1** - Lightweight web framework
 - **Google Generative AI 0.8.5** - AI model integration
 - **Flask-CORS 6.0.1** - Cross-origin resource sharing
+- **SymPy 1.14.0** - Mathematical equation solving
+- **python-dotenv** - Environment variable management
 
 ### Development Tools
 - **Git** - Version control
@@ -53,9 +56,10 @@ AI Homework Helper is designed to provide comprehensive academic support through
 ```
 AI-HW-Helper/
 ├── backend/
-│   ├── app.py              # Flask application
+│   ├── app.py              # Flask application with AI routing
 │   ├── requirements.txt    # Python dependencies
-│   ├── modules/           # Custom modules
+│   ├── modules/
+│   │   └── algebra_solver.py  # Custom algebra solving module
 │   └── venv/              # Virtual environment
 ├── frontend/
 │   ├── public/            # Static files
@@ -68,20 +72,31 @@ AI-HW-Helper/
 ## 🔧 API Endpoints
 
 ### POST `/api/solve`
-Processes homework questions and returns AI-generated responses.
+Processes homework questions and returns AI-generated responses with structured data.
 
 **Request Body:**
 ```json
 {
-  "prompt": "Solve the quadratic equation x² + 5x + 6 = 0",
+  "prompt": "solve for x in 2x + 5 = 15",
   "subject": "math"
 }
 ```
 
-**Response:**
+**Response Examples:**
+
+For Algebra problems:
 ```json
 {
-  "message": "AI-generated solution with step-by-step explanation"
+  "final_answer": "{5}",
+  "explanation": "Of course! The answer is x = 5. Here's how we solve it step by step..."
+}
+```
+
+For History/General queries:
+```json
+{
+  "final_answer": "History Answer",
+  "explanation": "Detailed response from the AI model..."
 }
 ```
 
@@ -90,11 +105,12 @@ Processes homework questions and returns AI-generated responses.
 This project serves as a comprehensive learning experience covering:
 
 - **Full-Stack Development**: React frontend + Flask backend
-- **API Integration**: Working with external AI services
-- **Modern Web Development**: RESTful APIs, CORS, JSON handling
-- **Python Programming**: Flask framework, environment management
-- **Data Science Concepts**: Analytics, visualization, algorithm development
-- **UI/UX Design**: Creating intuitive and beautiful user interfaces
+- **AI Integration**: Working with Google's Gemini AI models
+- **Mathematical Computing**: SymPy integration for equation solving
+- **API Design**: RESTful APIs with structured responses
+- **Modern Web Development**: CORS, JSON handling, error management
+- **Python Programming**: Flask framework, module organization
+- **AI Classification**: Intelligent query routing and processing
 - **Version Control**: Git workflow and project management
 
 ## 🚧 Development Roadmap
@@ -104,12 +120,15 @@ This project serves as a comprehensive learning experience covering:
 - [x] React frontend structure
 - [x] AI integration with Gemini
 - [x] Basic API communication
+- [x] Query classification system
+- [x] Algebra solver implementation
+- [x] Multi-model AI integration
 
 ### Phase 2: Enhanced Features 🚧
-- [ ] Custom math algorithms implementation
 - [ ] PDF processing capabilities
 - [ ] Citation system
 - [ ] Improved UI/UX design
+- [ ] Additional math subjects (Calculus, Geometry)
 
 ### Phase 3: Analytics & Advanced Features 📊
 - [ ] User analytics dashboard
@@ -118,7 +137,7 @@ This project serves as a comprehensive learning experience covering:
 - [ ] Performance optimization
 
 ### Phase 4: Production Ready 🚀
-- [ ] Error handling and logging
+- [ ] Comprehensive error handling and logging
 - [ ] Security enhancements
 - [ ] Testing suite
 - [ ] Deployment configuration
@@ -178,6 +197,23 @@ This project serves as a comprehensive learning experience covering:
 3. **Access the application**
    Open your browser and navigate to `http://localhost:3000`
 
+## 🔍 Usage Examples
+
+### Algebra Problems
+- "solve for x in 2x + 5 = 15"
+- "what is y if 3y - 12 = 0"
+- "find the value of z in 4z + 8 = 20"
+
+### History Questions
+- "who was the first president of the united states?"
+- "what happened in 1776?"
+- "who discovered electricity?"
+
+### General Queries
+- "what is the capital of France?"
+- "how does photosynthesis work?"
+- "what is the speed of light?"
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -185,3 +221,7 @@ This project serves as a comprehensive learning experience covering:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
