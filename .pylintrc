@@ -46,6 +46,7 @@ disable=
     consider-using-generator,
     consider-using-enumerate,
     consider-using-with,
-    consider-using-join
+    consider-using-join,
+    logging-fstring-interpolation
 
 enable=all

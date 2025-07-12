@@ -53,3 +53,23 @@ button:disabled {
   color: #d93025;
   font-weight: bold;
 }
+
+.final-answer {
+  font-size: 1.5em; /* Make the final answer bigger */
+  font-weight: bold;
+  color: #333;
+}
+
+.explanation {
+  /* This is very important! It makes sure the new lines and
+     spacing from the AI's response are displayed correctly. */
+  white-space: pre-wrap; 
+  line-height: 1.6;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #ddd;
+  margin: 20px 0;
+}

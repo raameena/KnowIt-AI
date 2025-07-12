@@ -74,12 +74,19 @@ function App() {
           {/* Show an error message if the API call fails */}
           {result && result.error && <p className="error-message">Error: {result.error}</p>}
           
-          {/* For now, this will display the test message from your backend.
-              We will change this later to show the real math solution. */}
-          {result && result.answer && (
+          {/* Check for the new 'final_answer' key */}
+          {result && result.final_answer && (
             <div>
               <h3>Answer:</h3>
-              <p>{result.answer}</p>
+              {/* Display the final, accurate answer */}
+              <p className="final-answer">{result.final_answer}</p>
+              
+              {/* Add a separator line */}
+              <hr />
+
+              <h3>Explanation:</h3>
+              {/* Display the step-by-step explanation */}
+              <p className="explanation">{result.explanation}</p>
             </div>
           )}
         </div>
