@@ -6,15 +6,24 @@
 import logging
 import json
 import os
+import requests
 from dotenv import load_dotenv
 import google.generativeai as genai
-
 from flask import Flask, jsonify, request
 
 # CORS gives server permission to access/be changed from another server
 # backend and frontend servers can exist together
 from flask_cors import CORS
-from modules import algebra_solver
+from sympy.core import parameters
+from modules import (
+    algebra_solver,
+    wolfram_api_solver,
+    tutor,
+    query_classifier,
+    query_translator,
+    history_handler,
+    general_handler,
+)
 
 # set up my logging in console
 logging.basicConfig(
@@ -24,11 +33,10 @@ logging.basicConfig(
 # loads my .env file with my google api key ( top secret )
 load_dotenv()
 # loads the variable from env to a usable var for app.py
-api_key = os.getenv("GOOGLE_API_KEY")
-# configures my ai with variable
-genai.configure(api_key=api_key)
 
-# gemini 1.5 pro model
+# gemini api
+gemini_api_key = os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=gemini_api_key)
 FLASH_MODEL = genai.GenerativeModel("gemini-1.5-flash")
 PRO_MODEL = genai.GenerativeModel("gemini-1.5-pro")
 
@@ -40,85 +48,38 @@ CORS(app)
 
 # app.route is url page, this is solve endpoint
 @app.route("/api/solve", methods=["POST"])
-def test():
-    # error handeling
+def solve_query():
+    """Main endpoint to handle and route user queries"""
     try:
         data = request.get_json()
-
-        # get user's prompt info from front end ( json package )
         user_prompt = data.get("prompt")
-        subject = data.get("subject")  # NULL for now ( will use later ;)
-        # classifying user's prompt
-        router_prompt = f"""
-            Your task is to classify the user's query into one of the following specific categories:
-            "Algebra - Solve for Variable", "Math - Other", "History", or "General".
-            You must respond with a single, valid JSON object with one key: "category".
+        subject = data.get("subject")  # NULL for now (will use later)
 
-            - If the user is asking to find the value of a specific variable in an equation (e.g., "solve for x", "what is y?"), classify it as "Algebra - Solve for Variable".
-            - If it's any other type of math or science question (like finding a slope, a derivative, a chemical property, etc.), classify it as "Math - Other".
-            - Use "History" for history questions and "General" for all other queries.
+        # Classify the query
+        category = query_classifier.classify_query(user_prompt, FLASH_MODEL)
+        logging.info(f"Query classified as: {category}")
 
-            Examples:
-            - Query: "who was the first president of the united states?"
-            - Response: {{"category": "History"}}
-
-            - Query: "what is the integral of 2x dx?"
-            - Response: {{"category": "Math - Other"}}
-
-            - Query: "solve for y in 3y - 12 = 0"
-            - Response: {{"category": "Algebra - Solve for Variable"}}
-
-            - Query: "what is the capital of nepal?"
-            - Response: {{"category": "General"}}
-
-            Now, classify the following query.
-
-            Query: "{user_prompt}"
-            IMPORTANT: Your entire response must be ONLY the raw JSON object, without any surrounding text or markdown.
-            Response:
-        """
-
-        # make put the router_prompt into llm
-        classification = FLASH_MODEL.generate_content(router_prompt)
-        # make llms response a python useable dictionary
-        json_string = classification.text
-        try:
-            classification_dict = json.loads(json_string)
-        except json.JSONDecodeError as e:
-            logging.error(
-                "JSON did not parse into python right. Json: %s", {json_string}
-            )
-            return jsonify({"error": "The AI returned an invalid format."}), 500
-
-        # put categories in their own vars
-        category = classification_dict.get("category")
-
-        logging.info(f"Successfuly parsed: category as '{category}'")
-
-        final_prompt = ""
+        # Route to appropriate handler
         if category == "Algebra - Solve for Variable":
-            algebra_solution_data = algebra_solver.solve_algebra_problem(
+            return algebra_solver.solve_algebra_problem(
                 user_prompt, FLASH_MODEL, PRO_MODEL
             )
-            logging.info("algebra solver worked.")
-            return jsonify(algebra_solution_data)
-        elif category == "History":
-            final_prompt = f"""
-            You are a expert at history and have a vast knowledge of the past.
-            Provide a concise and accurate answer for the following inquiry.
-            Inquiry: {user_prompt}
-            """
-            logging.info("history prompt worked")
-            response = PRO_MODEL.generate_content(final_prompt)
-            return jsonify(
-                {"final_answer": "History Answer", "explanation": response.text}
+
+        elif category == "Math - Other":
+            translated_query = query_translator.translate_for_wolfram(
+                user_prompt, FLASH_MODEL
             )
-        else:
-            final_prompt = user_prompt
-            response = FLASH_MODEL.generate_content(final_prompt)
-            return jsonify({"final_answer": "Answer", "explanation": response.text})
+            wolfram_answer = wolfram_api_solver.wolframalpha(translated_query)
+            return tutor.tutor_response(translated_query, wolfram_answer, PRO_MODEL)
+
+        elif category == "History":
+            return history_handler.handle_history_query(user_prompt, PRO_MODEL)
+
+        else:  # General
+            return general_handler.handle_general_query(user_prompt, FLASH_MODEL)
+
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
         return jsonify({"error": str(e)}), 500
 
 

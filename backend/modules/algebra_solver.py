@@ -3,7 +3,6 @@ import logging
 from sympy import sympify, Symbol, Eq, solveset
 from dotenv import load_dotenv
 import google.generativeai as genai
-
 from flask import Flask, jsonify, request
 
 logging.basicConfig(
@@ -49,7 +48,9 @@ def solve_algebra_problem(user_prompt, FLASH_MODEL, PRO_MODEL):
     try:
         algebra_dict = json.loads(clean_json_string)
     except json.JSONDecodeError as e:
-        logging.error(f"Failed to decode JSON from AI: '{clean_json_string}'. Error: {e}")
+        logging.error(
+            f"Failed to decode JSON from AI: '{clean_json_string}'. Error: {e}"
+        )
         # Raise an exception to signal the failure to the calling function
         raise ValueError("The AI returned an invalid format.") from e
     # responses are placed in specific vars
@@ -71,20 +72,12 @@ def solve_algebra_problem(user_prompt, FLASH_MODEL, PRO_MODEL):
 
         logging.info(f"Solved answer with Sympy: {sympy_answer}")
 
-        # llm making steps from the answer
-        tutor_prompt = f"""
-        You are a friendly and encouraging math tutor.
-        The user's problem was: '{user_prompt}'
-        The correct final answer is: '{sympy_answer}'
+        try:
+            import tutor
 
-        Please provide a friendly, step-by-step explanation of how to get from the problem 
-        to the solution. Start your response with a sentence like 'Of course! The answer is...'
-        """
-        tutor_response = PRO_MODEL.generate_content(tutor_prompt)
-        tutor_response_text = tutor_response.text
-
-        # returns the answer and the tutors step-by-step
-        return {"final_answer": sympy_answer, "explanation": tutor_response_text}
+            tutor.tutor_response(user_prompt, sympy_answer, PRO_MODEL)
+        except Exception as e:
+            logging.error("Tutor was unable to create response.")
     except Exception as e:
         logging.error(f"Sympy failed to solve the equation. Error: {e}")
         return "I was unable to solve that specific algebra problem."
