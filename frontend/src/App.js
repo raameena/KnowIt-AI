@@ -100,6 +100,7 @@ function App() {
               </h1>
             </div>
             <p className="subtitle">Premium Math Help ⭐️</p>
+            <p className="subtitle">Powered by Wolfram Alpha API and Gemini API</p>
           </div>
         </header>
 
@@ -223,41 +224,17 @@ function App() {
         </form>
             </div>
           </div>
-
-          {/* Sidebar */}
-          <div className="sidebar">
-            <div className="sidebar-section">
-              <h3>Quick Actions</h3>
-              <button 
-                onClick={clearHistory} 
-                className="clear-button"
-                disabled={chatHistory.length === 0}
-              >
-                Clear Chat
-              </button>
-            </div>
-
-            <div className="sidebar-section">
-              <h3>Features</h3>
-              <ul className="features-list">
-                <li>✅ Step-by-step explanations</li>
-                <li>✅ Algebraic problem solving</li>
-                <li>✅ Mathematical simplification</li>
-                <li>✅ Real-time AI assistance</li>
-              </ul>
-            </div>
-
-            <div className="sidebar-section">
-              <h3>Tips</h3>
-              <ul className="tips-list">
-                <li>Be specific with your questions</li>
-                <li>Include all relevant information</li>
-                <li>Ask for step-by-step solutions</li>
-                <li>Use clear mathematical notation</li>
-              </ul>
-            </div>
-        </div>
         </main>
+
+        {/* Clear Chat Button - Bottom Right */}
+        {chatHistory.length > 0 && (
+          <button 
+            onClick={clearHistory} 
+            className="clear-button-fixed"
+          >
+            Clear Chat
+          </button>
+        )}
       </div>
     </div>
   );
