@@ -553,10 +553,13 @@ body {
 @media (max-width: 768px) {
   .app-container {
     padding: 10px;
+    height: auto;
+    min-height: 100vh;
   }
   
   .app-header {
     padding: 15px 20px;
+    margin-bottom: 15px;
   }
   
   .app-header h1 {
@@ -568,11 +571,20 @@ body {
   }
   
   .main-content {
-    height: calc(100vh - 150px);
+    height: auto;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .chat-container {
+    flex: 1;
+    min-height: 400px;
   }
   
   .chat-history {
-  padding: 15px;
+    padding: 15px;
   }
   
   .input-container {
@@ -583,15 +595,36 @@ body {
   .ai-message .message-text {
     max-width: 90%;
   }
+  
+  .sidebar {
+    order: 2;
+    max-height: none;
+  }
 }
 
 @media (max-width: 480px) {
+  .app-container {
+    padding: 5px;
+  }
+  
+  .app-header {
+    padding: 10px 15px;
+  }
+  
   .app-header h1 {
     font-size: 1.5rem;
   }
   
   .subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .main-content {
+    gap: 10px;
+  }
+  
+  .chat-container {
+    min-height: 350px;
   }
   
   .input-wrapper {
@@ -601,5 +634,13 @@ body {
   
   .send-button {
     width: 100%;
+  }
+  
+  .sidebar {
+    padding: 15px;
+  }
+  
+  .sidebar-section {
+    margin-bottom: 10px;
   }
 }
