@@ -21,6 +21,9 @@ def tutor_response(user_prompt, answer, PRO_MODEL):
     ---
     IMPORTANT: You must format your entire response using only plain text. Do not use any Markdown, HTML, or LaTeX formatting. For exponents, use the caret symbol (^), for example: x^2.
     Now, generate your response based on the instructions above.
+
+    You can incorporate emojis in your responses.
+    
     """
     tutor_response = PRO_MODEL.generate_content(tutor_prompt)
     tutor_response_text = tutor_response.text
