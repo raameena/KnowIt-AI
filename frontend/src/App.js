@@ -111,13 +111,13 @@ function App() {
               {chatHistory.length === 0 && (
                 <div className="welcome-message">
                   <h3>Welcome to AI Homework Solver!</h3>
-                  <p>Ask me anything, and I'll help you answer it.</p>
+                  <p> All your questions will be answered here :)</p>
                   <div className="example-prompts">
                     <p>Try asking:</p>
                     <ul>
-                      <li>"Solve for x: 2x + 5 = 13"</li>
-                      <li>"Simplify: 3x² + 6x - 5"</li>
-                      <li>"What is the capital of France"</li>
+                      <li>Math: "Solve for x: 2x + 5 = 13"</li>
+                      <li>Math: "Simplify: 3x² + 6x - 5"</li>
+                      <li>Other: "What is the capital of France"</li>
                     </ul>
                   </div>
                 </div>
@@ -202,7 +202,7 @@ function App() {
                         }
                       }
                     }}
-                    placeholder="Ask me any math problem..."
+                    placeholder="Ask me anything..."
                     disabled={isLoading}
                     className="chat-input"
                   />
