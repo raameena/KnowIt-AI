@@ -21,8 +21,9 @@ from modules import (
     tutor,
     query_classifier,
     query_translator,
+    casual_handler,
     history_handler,
-    general_handler,
+    general_handler
 )
 
 # set up my logging in console
@@ -65,6 +66,11 @@ def solve_query():
                 user_prompt, FLASH_MODEL, PRO_MODEL
             )
 
+        elif category == "Algebra - Simplify":
+            return algebra_solver.simplify_algebra_problem(
+                user_prompt, FLASH_MODEL, PRO_MODEL
+            )
+
         elif category == "Math - Other":
             translated_query = query_translator.translate_for_wolfram(
                 user_prompt, FLASH_MODEL
@@ -75,8 +81,11 @@ def solve_query():
         elif category == "History":
             return history_handler.handle_history_query(user_prompt, PRO_MODEL)
 
-        else:  # General
+        elif category == "General":
             return general_handler.handle_general_query(user_prompt, FLASH_MODEL)
+
+        elif category == "Casual":
+            return casual_handler.handle_casual_query(user_prompt, FLASH_MODEL)
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
