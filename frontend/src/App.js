@@ -110,14 +110,13 @@ function App() {
             <div className="chat-history">
               {chatHistory.length === 0 && (
                 <div className="welcome-message">
-                  <div className="welcome-icon">✨</div>
-                  <h3>Welcome to AI Homework Helper!</h3>
+                  <h3>Welcome to AI Homework Solver!</h3>
                   <p>Ask me any math problem, and I'll help you solve it step by step.</p>
                   <div className="example-prompts">
                     <p>Try asking:</p>
                     <ul>
                       <li>"Solve for x: 2x + 5 = 13"</li>
-                      <li>"Simplify: 3x² + 2x - 5"</li>
+                      <li>"Simplify: 3x² + 6x - 5"</li>
                       <li>"What is the derivative of x³?"</li>
                     </ul>
                   </div>
@@ -192,9 +191,17 @@ function App() {
             <div className="input-container">
               <form onSubmit={handleSubmit} className="input-form">
                 <div className="input-wrapper">
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+                            <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (prompt.trim() && !isLoading) {
+                          handleSubmit(e);
+                        }
+                      }
+                    }}
                     placeholder="Ask me any math problem..."
                     disabled={isLoading}
                     className="chat-input"

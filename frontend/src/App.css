@@ -11,9 +11,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   min-height: 100vh;
-  color: #333;
+  color: #ffffff;
 }
 
 .App {
@@ -34,13 +34,13 @@ body {
 
 /* Header Styles */
 .app-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 50, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 20px 30px;
   margin-bottom: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-content {
@@ -70,7 +70,7 @@ body {
 .app-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #5a7c8a, #7a6b9a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -89,7 +89,7 @@ body {
   animation: letterWave 2.44s ease-in-out infinite;
   transform-origin: center;
   margin: 0 0.5px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #5a7c8a, #7a6b9a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -113,7 +113,7 @@ body {
 }
 
 .subtitle {
-  color: #666;
+  color: #b0b0b0;
   font-size: 1.1rem;
   font-weight: 400;
 }
@@ -129,11 +129,11 @@ body {
 
 /* Chat Container */
 .chat-container {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 50, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -169,7 +169,7 @@ body {
 .welcome-message {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: #b0b0b0;
 }
 
 .welcome-icon {
@@ -187,7 +187,7 @@ body {
 .welcome-message h3 {
   font-size: 1.5rem;
   margin-bottom: 10px;
-  color: #333;
+  color: #ffffff;
 }
 
 .welcome-message p {
@@ -205,7 +205,7 @@ body {
 .example-prompts p {
   font-weight: 600;
   margin-bottom: 10px;
-  color: #333;
+  color: #ffffff;
 }
 
 .example-prompts ul {
@@ -215,7 +215,7 @@ body {
 
 .example-prompts li {
   padding: 8px 0;
-  color: #555;
+  color: #cccccc;
   font-style: italic;
 }
 
@@ -278,12 +278,13 @@ body {
 }
 
 .ai-message .message-text {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  padding: 16px;
+  background: rgba(40, 40, 60, 0.8);
+  border: 1px solid #4a4a6a;
+  padding: 20px;
   border-radius: 18px 18px 18px 4px;
-  max-width: 80%;
+  max-width: 85%;
   word-wrap: break-word;
+  min-height: 60px;
 }
 
 .ai-message .message-avatar {
@@ -298,7 +299,7 @@ body {
 
 .answer-section h4, .explanation-section h4 {
   font-size: 0.9rem;
-  color: #666;
+  color: #b0b0b0;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -316,7 +317,7 @@ body {
 
 .explanation {
   line-height: 1.6;
-  color: #333;
+  color: #ffffff;
   white-space: pre-wrap;
 }
 
@@ -377,8 +378,8 @@ body {
 /* Input Container */
 .input-container {
   padding: 20px;
-  border-top: 1px solid #e9ecef;
-  background: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid #4a4a6a;
+  background: rgba(30, 30, 50, 0.8);
 }
 
 .input-form {
@@ -397,22 +398,24 @@ body {
   min-height: 50px;
   max-height: 120px;
   padding: 12px 16px;
-  border: 2px solid #e9ecef;
+  border: 2px solid #4a4a6a;
   border-radius: 25px;
   font-size: 1rem;
   resize: none;
   outline: none;
   transition: all 0.3s ease;
   font-family: inherit;
+  background: rgba(20, 20, 40, 0.8);
+  color: #ffffff;
 }
 
 .chat-input:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .chat-input:disabled {
-  background: #f8f9fa;
+  background: rgba(20, 20, 40, 0.5);
   cursor: not-allowed;
 }
 
@@ -466,28 +469,28 @@ body {
 
 /* Sidebar */
 .sidebar {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 50, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   height: fit-content;
   max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
 
 .sidebar-section {
-  margin-bottom: 25px;
+  margin-bottom: 15px;
 }
 
 .sidebar-section h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid #4a4a6a;
 }
 
 .clear-button {
@@ -518,10 +521,10 @@ body {
 }
 
 .features-list li, .tips-list li {
-  padding: 8px 0;
-  color: #555;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  padding: 4px 0;
+  color: #b0b0b0;
+  font-size: 0.8rem;
+  line-height: 1.2;
 }
 
 .features-list li {
@@ -530,7 +533,7 @@ body {
 }
 
 .tips-list li {
-  color: #666;
+  color: #cccccc;
   font-style: italic;
 }
 
@@ -569,7 +572,7 @@ body {
   }
   
   .chat-history {
-    padding: 15px;
+  padding: 15px;
   }
   
   .input-container {
