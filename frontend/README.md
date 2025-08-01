@@ -1,14 +1,14 @@
-# AI Homework Helper Frontend
+# Frontend
 
-This is the React-based UI for the AI Homework Helper project.
+React UI for AI Homework Helper.
 
-- **Built with:** React, CSS
-- **Deployed on:** Render
+## Setup
+```bash
+npm install
+npm start
+```
 
 ## Features
-- Modern, responsive chat interface
-- Real-time AI-powered homework help
-- Works with the Flask backend (see main repo)
-
----
-For backend/API and deployment details, see the main project README.
+- Chat interfac
+- PDF upload
+- Real-time AI responses

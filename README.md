@@ -1,33 +1,30 @@
 # AI Homework Helper
 
-A modern, full-stack AI-powered homework assistant.
+AI-powered homework assistant with step-by-step solutions.
 
-## 🚀 Tech Stack
-- **Frontend:** React, CSS, JavaScript
-- **Backend:** Python, Flask, Gunicorn
-- **AI/Math:** Google Gemini, SymPy, Wolfram Alpha API
-- **Deployment:** Render (Gunicorn for backend)
+## Tech Stack
+- **Frontend:** React, CSS
+- **Backend:** Python, Flask
+- **AI:** Google Gemini, Wolfram Alpha API
 
-## 📁 Repo Layout
-```
-AI-HW-Helper/
-├── backend/
-│   ├── app.py           # Flask app
-│   ├── requirements.txt # Backend dependencies
-│   └── modules/         # Algebra, AI, Wolfram, etc.
-├── frontend/
-│   ├── src/             # React app
-│   └── public/
-└── README.md
-```
+## Features
+- **Math:** Algebra solving, derivatives, integrals, linear algebra
+- **History:** Historical facts and explanations
+- **General:** Any homework question
+- **Document Analysis:** Upload PDFs and ask questions
 
-## 💡 What Can the AI Handle?
-- **Algebra:** "solve for x: 2x + 5 = 13"
-- **Math (Wolfram):** "find the derivative of x^2 + 2x"
-- **History:** "who was the first president of the US?"
-- **General:** "what is the capital of France?"
-- **Casual:** "hi, whats up?"
+## Quick Start
+1. Clone the repo
+2. Install backend: `cd backend && pip install -r requirements.txt`
+3. Install frontend: `cd frontend && npm install`
+4. Run backend: `python app.py`
+5. Run frontend: `npm start`
 
----
-- Built for fast, accurate, and step-by-step homework help
-- Deployed with Render + Gunicorn for production reliability
+## Usage
+- Type any homework question
+- Upload PDFs for document analysis
+- Get step-by-step explanations
+
+## Deployment
+- Backend: Render with Gunicorn
+- Frontend: Render static site

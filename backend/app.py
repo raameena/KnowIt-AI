@@ -7,9 +7,16 @@ import logging
 import json
 import os
 import requests
+import PyPDF2
 from dotenv import load_dotenv
 import google.generativeai as genai
 from flask import Flask, jsonify, request
+from database import (
+    init_db, 
+    update_database, 
+    get_text_from_session,
+    delete_session
+)
 
 # CORS gives server permission to access/be changed from another server
 # backend and frontend servers can exist together
@@ -23,7 +30,8 @@ from modules import (
     query_translator,
     casual_handler,
     history_handler,
-    general_handler
+    general_handler,
+    file_handler,
 )
 
 # set up my logging in console
@@ -45,6 +53,8 @@ PRO_MODEL = genai.GenerativeModel("gemini-1.5-pro")
 app = Flask(__name__)
 # allows the app to be accessed from multiple servers
 CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 
+init_db()
 
 
 # app.route is url page, this is solve endpoint
@@ -54,7 +64,13 @@ def solve_query():
     try:
         data = request.get_json()
         user_prompt = data.get("prompt")
+        session_id = data.get("sessionId")
+        document_text = get_text_from_session(session_id)
         subject = data.get("subject")  # NULL for now (will use later)
+        logging.info("Checking for document.")
+
+        if document_text:
+            return file_handler.handle_file_query(user_prompt, document_text, PRO_MODEL)
 
         # Classify the query
         category = query_classifier.classify_query(user_prompt, FLASH_MODEL)
@@ -92,6 +108,52 @@ def solve_query():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/upload", methods=["POST"])
+def upload_doc():
+    try:
+        if "file" not in request.files:
+            return jsonify({"error": "PDF was not sent to request."})
+
+        file = request.files["file"]
+        session_ID = request.form.get("sessionId")
+        if file.filename == " ":
+            return jsonify({"error": "No PDF has been selected."})
+
+        if file and file.filename.endswith(".pdf"):
+            reader = PyPDF2.PdfReader(file.stream)
+            full_text = " "
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    full_text += page_text + "\n"
+            logging.info("Successfully extracted text from PDF")
+
+            update_database(session_ID, full_text)
+
+            return jsonify({"message": "File uploaded successfully!"})
+        else:
+            return jsonify(
+                {"error": "Invalid file type selected, please select a PDF."}
+            )
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/clear_session", methods=["POST"])
+def delete_user_session():
+    try:
+        data = request.get_json()
+        session_ID = data.get("sessionId")
+        
+        if session_ID:
+            delete_session(session_ID)
+            return jsonify({"message": "Session cleared successfully."})
+        else:
+            return jsonify({"error": "Session ID missing."})
+    except Exception as e:
+        logging.error(f"Error in clear_session endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
 # __name__ changes to __main__ when website activates
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

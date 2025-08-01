@@ -1,15 +1,101 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactGA from 'react-ga4';
 import './App.css';
 
+// Helper function to generate a unique ID for each chat session
+const generateSessionId = () => crypto.randomUUID();
+
 function App() {
+  const [sessionId, setSessionId] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  // =================================================================
-  // THIS IS THE UPDATED SECTION
-  // =================================================================
+  useEffect(() => {
+    setSessionId(generateSessionId());
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMoreOptions && !event.target.closest('.more-options-dropdown')) {
+        setShowMoreOptions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMoreOptions]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showClearConfirm && !event.target.closest('.popup-content')) {
+        setShowClearConfirm(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showClearConfirm]);
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+    if (file.size > MAX_FILE_SIZE) {
+      // Create an error message and add it to the chat
+      const errorMessage = { 
+        type: 'error', 
+        content: `File is too large. Please upload a PDF smaller than ${MAX_FILE_SIZE / 1024 / 1024} MB.`, 
+        timestamp: new Date() 
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+
+      // Stop the function here
+      return; 
+    }
+
+    setIsLoading(true);
+    setUploadedFile(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('sessionId', sessionId);
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`File upload failed! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Response from /api/upload:', data);
+
+    } catch (error) {
+      const errorMessage = { type: 'error', content: error.message, timestamp: new Date() };
+      setChatHistory(prev => [...prev, errorMessage]);
+      setUploadedFile(null);
+    } finally {
+      setIsLoading(false);
+      if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!prompt.trim()) return;
@@ -21,13 +107,13 @@ function App() {
     setPrompt('');
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
       const response = await fetch(`${apiUrl}/api/solve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: prompt }),
+        body: JSON.stringify({ prompt: prompt, sessionId: sessionId }),
       });
 
       if (!response.ok) {
@@ -45,13 +131,10 @@ function App() {
       
       setChatHistory(prevHistory => [...prevHistory, aiMessage]);
 
-      // --- THIS IS THE NEW LINE ---
-      // It runs only after a successful response is received and added to history.
       ReactGA.event({
         category: 'AI Interaction',
         action: 'Successful_Solve',
       });
-      // --------------------------
 
     } catch (error) {
       const errorMessage = { 
@@ -64,12 +147,46 @@ function App() {
       setIsLoading(false);
     }
   };
-  // =================================================================
-  // END OF UPDATED SECTION
-  // =================================================================
 
-  const clearHistory = () => {
-    setChatHistory([]);
+  // --- THIS IS THE UPDATED FUNCTION ---
+  const clearHistory = async () => {
+    // Check if there is anything to clear OR if a file was uploaded,
+    // as we still need to clear the backend session.
+    if (chatHistory.length === 0 && !uploadedFile) return;
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
+      // Call the backend endpoint to delete the session data from the database
+      const response = await fetch(`${apiUrl}/api/clear_session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId: sessionId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to clear session on the server.');
+      }
+
+      console.log('Session cleared on server.');
+
+    } catch (error) {
+      console.error("Error clearing session:", error);
+      // Optionally show an error in the chat
+      const errorMessage = { 
+        type: 'error', 
+        content: 'Could not clear the server session. Please try again.', 
+        timestamp: new Date() 
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+    } finally {
+      // This part runs regardless of the API call's success
+      // to ensure the frontend UI is always cleared.
+      setChatHistory([]);
+      setUploadedFile(null);
+      setSessionId(generateSessionId());
+    }
   };
 
   const formatTimestamp = (timestamp) => {
@@ -79,11 +196,9 @@ function App() {
     });
   };
 
-  // Your entire JSX return statement below this line is perfect and remains unchanged.
   return (
     <div className="App">
       <div className="app-container">
-        {/* Header */}
         <header className="app-header">
           <div className="header-content">
             <div className="logo">
@@ -104,25 +219,43 @@ function App() {
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="main-content">
-          <div className="chat-container">
-            {/* Chat History */}
+          <div className={`chat-container ${uploadedFile ? 'has-document' : ''}`}>
             <div className="chat-history">
               {chatHistory.length === 0 && (
                 <div className="welcome-message">
-                  <h3>Welcome to AI Homework Solver!</h3>
-                  <p> All your questions will be answered here :)</p>
-                  <div className="example-prompts">
-                    <p>Try asking:</p>
-                    <ul>
-                      <li>Math: "Solve for x: 2x + 5 = 13"</li>
-                      <li>Math: "Simplify: 3x² + 6x - 5"</li>
-                      <li>Other: "What is the capital of France"</li>
-                    </ul>
-                  </div>
+                  {uploadedFile ? (
+                    <>
+                      <h3>📄 Document Analysis Ready!</h3>
+                      <p>Your document has been uploaded successfully. Ask me anything about it!</p>
+                      <div className="example-prompts">
+                        <p>Try asking about your document:</p>
+                        <ul>
+                          <li>"Summarize the main points"</li>
+                          <li>"What are the key qualifications mentioned?"</li>
+                          <li>"Extract all contact information"</li>
+                          <li>"What experience is highlighted?"</li>
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3>Welcome to AI Homework Helper!</h3>
+                      <p> All your questions will be answered here :)</p>
+                      <div className="example-prompts">
+                        <p>Try asking:</p>
+                        <ul>
+                          <li>Math: "Solve for x: 2x + 5 = 13"</li>
+                          <li>Math: "Simplify: 3x² + 6x - 5"</li>
+                          <li>Other: "What is the capital of France"</li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
+
+
 
               {chatHistory.map((message, index) => (
                 <div key={index} className={`message ${message.type}`}>
@@ -160,6 +293,12 @@ function App() {
                         <div className="message-text">Error: {message.content}</div>
                       </div>
                     )}
+
+                    {message.type === 'system' && (
+                        <div className="system-message">
+                            <span>{message.content}</span>
+                        </div>
+                    )}
                   </div>
                   <div className="message-timestamp">
                     {formatTimestamp(message.timestamp)}
@@ -187,12 +326,57 @@ function App() {
                 </div>
               )}
             </div>
-
-            {/* Input Form */}
+            
             <div className="input-container">
               <form onSubmit={handleSubmit} className="input-form">
                 <div className="input-wrapper">
-                            <textarea
+                  <div className="more-options-dropdown">
+                    <button
+                      type="button"
+                      className="more-options-button"
+                      onClick={() => setShowMoreOptions(!showMoreOptions)}
+                      disabled={isLoading}
+                      title="More Options"
+                    >
+                      +
+                    </button>
+                    
+                    {showMoreOptions && (
+                      <div className="dropdown-menu">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }}
+                          accept=".pdf"
+                        />
+                        
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => {
+                            fileInputRef.current.click();
+                          }}
+                          disabled={isLoading}
+                        >
+                          📎 Attach PDF
+                        </button>
+                        
+                        <button 
+                          onClick={() => {
+                            console.log('Clear chat button clicked');
+                            setShowClearConfirm(true);
+                            setShowMoreOptions(false);
+                          }}
+                          className="dropdown-item clear-option"
+                        >
+                          🗑️ Clear Chat
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     onKeyDown={(e) => {
@@ -203,7 +387,7 @@ function App() {
                         }
                       }
                     }}
-                    placeholder="Ask me anything..."
+                    placeholder={uploadedFile ? "Ask a question about your document..." : "Ask me anything..."}
                     disabled={isLoading}
                     className="chat-input"
                   />
@@ -219,23 +403,44 @@ function App() {
                     ) : (
                       <span>Send</span>
                     )}
-          </button>
+                  </button>
                 </div>
-        </form>
+              </form>
+              {uploadedFile && (
+                <div className="file-indicator">
+                  <p>Active Document: {uploadedFile.name}</p>
+                </div>
+              )}
             </div>
           </div>
         </main>
-
-        {/* Clear Chat Button - Bottom Right */}
-        {chatHistory.length > 0 && (
-          <button 
-            onClick={clearHistory} 
-            className="clear-button-fixed"
-          >
-            Clear Chat
-          </button>
-        )}
       </div>
+      
+      {showClearConfirm && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h3>Clear Chat History?</h3>
+            <p>Are you sure you want to clear all chat messages? This action cannot be undone.</p>
+            <div className="popup-buttons">
+              <button 
+                onClick={() => {
+                  clearHistory();
+                  setShowClearConfirm(false);
+                }}
+                className="popup-button confirm-button"
+              >
+                Yes, Clear Chat
+              </button>
+              <button 
+                onClick={() => setShowClearConfirm(false)}
+                className="popup-button cancel-button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
