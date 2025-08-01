@@ -203,7 +203,7 @@ function App() {
           <div className="header-content">
             <div className="logo">
               <h1 className="wave-text">
-                {'AI Homework Solver'.split('').map((char, index) => (
+                {'KnowIt AI'.split('').map((char, index) => (
                   <span 
                     key={index} 
                     className="wave-letter"
@@ -240,7 +240,7 @@ function App() {
                     </>
                   ) : (
                     <>
-                      <h3>Welcome to AI Homework Helper!</h3>
+                      <h3>Welcome to KnowIt AI!</h3>
                       <p> All your questions will be answered here :)</p>
                       <div className="example-prompts">
                         <p>Try asking:</p>
