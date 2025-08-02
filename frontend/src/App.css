@@ -24,9 +24,10 @@ body {
 
 /* App Container */
 .app-container {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 40px;
+  padding: 20px 20px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -37,10 +38,13 @@ body {
   background: rgba(30, 30, 50, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  padding: 20px 30px;
+  padding: 20px 10px;
   margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 20px auto;
 }
 
 .header-content {
@@ -123,7 +127,8 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 180px);
+  width: 100%;
 }
 
 /* Chat Container */
@@ -136,13 +141,30 @@ body {
   display: flex;
   flex-direction: column;
   overflow: visible;
-  min-height: 350px;
-  transition: min-height 0.3s ease;
+  min-height: 550px;
+  max-height: 550px;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 /* Chat Container with Document Uploaded */
 .chat-container.has-document {
-  min-height: 450px;
+  min-height: 650px;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Chat Container after user submits inquiry */
+.chat-container.has-messages {
+  min-height: 500px;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Chat Container with Document Uploaded and has messages */
+.chat-container.has-document.has-messages {
+  min-height: 500px;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Chat History */
@@ -171,15 +193,69 @@ body {
   background: #a8a8a8;
 }
 
-/* File Indicator */
+/* File Attachment */
+.file-attachment {
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 8px 0 15px 0;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  width: fit-content;
+  max-width: 400px;
+  margin-left: 60px;
+}
+
+.file-attachment-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-icon {
+  font-size: 1.1rem;
+  color: #667eea;
+}
+
+.file-name {
+  flex: 1;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+}
+
+.remove-file-btn:hover {
+  background: rgba(255, 107, 107, 0.1);
+  transform: scale(1.1);
+}
+
+/* File Indicator (keeping for uploaded files) */
 .file-indicator {
   background: rgba(102, 126, 234, 0.1);
   border-radius: 10px;
   padding: 8px 16px;
-  margin: 8px auto;
+  margin: 8px 0;
   border: 1px solid rgba(102, 126, 234, 0.3);
   text-align: left;
-  max-width: 1000px;
+  width: 100%;
 }
 
 .file-indicator p {
@@ -187,6 +263,90 @@ body {
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.file-indicator-box {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: #4CAF50;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3), 0 0 25px rgba(76, 175, 80, 0.1);
+  animation: attachmentGlow 3s ease-in-out infinite alternate;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.file-indicator-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes attachmentGlow {
+  from {
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3), 0 0 25px rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+  }
+  to {
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4), 0 0 30px rgba(76, 175, 80, 0.2);
+    border-color: rgba(76, 175, 80, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.file-indicator-box .file-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 2px 4px rgba(76, 175, 80, 0.3));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.file-indicator-box .file-name {
+  font-weight: 600;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.4), 0 0 20px rgba(76, 175, 80, 0.2);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6), 0 0 25px rgba(76, 175, 80, 0.3);
+  }
+}
+
+.file-indicator-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+.file-indicator-container .file-indicator-box {
+  margin-bottom: 0;
+  max-width: 60%;
 }
 
 /* Welcome Message */
@@ -247,6 +407,24 @@ body {
 .message {
   margin-bottom: 20px;
   animation: slideIn 0.3s ease-out;
+  transition: all 0.5s ease-out;
+}
+
+.message.clearing {
+  animation: slideOut 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+@keyframes slideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes slideIn {
@@ -260,10 +438,7 @@ body {
   }
 }
 
-.message-content {
-  display: flex;
-  flex-direction: column;
-}
+
 
 .message-timestamp {
   font-size: 0.8rem;
@@ -285,8 +460,9 @@ body {
   color: white;
   padding: 12px 16px;
   border-radius: 18px 18px 4px 18px;
-  max-width: 70%;
+  max-width: 60%;
   word-wrap: break-word;
+  text-align: right;
 }
 
 .user-message .message-avatar {
@@ -306,7 +482,7 @@ body {
   border: 1px solid #4a4a6a;
   padding: 20px;
   border-radius: 18px 18px 18px 4px;
-  max-width: 85%;
+  max-width: 75%;
   word-wrap: break-word;
   min-height: 60px;
 }
@@ -343,6 +519,63 @@ body {
   line-height: 1.6;
   color: #ffffff;
   white-space: pre-wrap;
+}
+
+/* System Message */
+.system-message {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.system-message-content {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: #4CAF50;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.system-message-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+  animation: shimmer 2.5s infinite;
+}
+
+.system-message-content .file-icon {
+  font-size: 1.1rem;
+  filter: drop-shadow(0 1px 2px rgba(76, 175, 80, 0.3));
+}
+
+@keyframes fileGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* Error Message */
@@ -418,9 +651,8 @@ body {
   gap: 12px;
   align-items: center;
   justify-content: center;
-  max-width: 1000px;
-  margin: 0 auto;
   width: 100%;
+  margin: 0;
 }
 
 
@@ -822,6 +1054,7 @@ body {
     padding: 10px 20px;
     height: auto;
     min-height: 100vh;
+    max-width: 95%;
   }
   
   .app-header {
@@ -847,10 +1080,18 @@ body {
   
   .chat-container {
     flex: 1;
-    min-height: 300px;
+    min-height: 500px;
   }
   
   .chat-container.has-document {
+    min-height: 600px;
+  }
+  
+  .chat-container.has-messages {
+    min-height: 300px;
+  }
+  
+  .chat-container.has-document.has-messages {
     min-height: 400px;
   }
   
@@ -871,6 +1112,7 @@ body {
 @media (max-width: 480px) {
   .app-container {
     padding: 5px 15px;
+    max-width: 98%;
   }
   
   .app-header {
@@ -890,10 +1132,18 @@ body {
   }
   
   .chat-container {
-    min-height: 250px;
+    min-height: 450px;
   }
   
   .chat-container.has-document {
+    min-height: 550px;
+  }
+  
+  .chat-container.has-messages {
+    min-height: 250px;
+  }
+  
+  .chat-container.has-document.has-messages {
     min-height: 350px;
   }
   

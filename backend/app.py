@@ -70,7 +70,37 @@ def solve_query():
         logging.info("Checking for document.")
 
         if document_text:
-            return file_handler.handle_file_query(user_prompt, document_text, PRO_MODEL)
+            plan = file_handler.file_planner(user_prompt, document_text, FLASH_MODEL)
+            source = plan.get("source")
+            topic = plan.get("topic")
+
+            if source == "Document":
+                return file_handler.handle_file_query(user_prompt, document_text, PRO_MODEL)
+            else:
+                if topic == "Algebra - Solve for Variable":
+                    return algebra_solver.solve_algebra_problem(
+                user_prompt, FLASH_MODEL, PRO_MODEL)
+
+                elif topic == "Algebra - Simplify":
+                    return algebra_solver.simplify_algebra_problem(
+                        user_prompt, FLASH_MODEL, PRO_MODEL
+                    )
+
+                elif topic == "Math - Other":
+                    translated_query = query_translator.translate_for_wolfram(
+                        user_prompt, FLASH_MODEL
+                    )
+                    wolfram_answer = wolfram_api_solver.wolframalpha(translated_query)
+                    return tutor.tutor_response(translated_query, wolfram_answer, PRO_MODEL)
+
+                elif topic == "History":
+                    return history_handler.handle_history_query(user_prompt, PRO_MODEL)
+
+                elif topic == "General":
+                    return general_handler.handle_general_query(user_prompt, FLASH_MODEL)
+
+                elif topic == "Casual":
+                    return casual_handler.handle_casual_query(user_prompt, FLASH_MODEL)
 
         # Classify the query
         category = query_classifier.classify_query(user_prompt, FLASH_MODEL)

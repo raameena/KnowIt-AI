@@ -8,6 +8,7 @@ const generateSessionId = () => crypto.randomUUID();
 function App() {
   const [sessionId, setSessionId] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [stagedFile, setStagedFile] = useState(null);
   const fileInputRef = useRef(null);
   
   const [prompt, setPrompt] = useState('');
@@ -44,7 +45,7 @@ function App() {
     };
   }, [showClearConfirm]);
 
-  const handleFileChange = async (event) => {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -63,36 +64,11 @@ function App() {
       return; 
     }
 
-    setIsLoading(true);
-    setUploadedFile(file);
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('sessionId', sessionId);
-
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
-      const response = await fetch(`${apiUrl}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`File upload failed! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Response from /api/upload:', data);
-
-    } catch (error) {
-      const errorMessage = { type: 'error', content: error.message, timestamp: new Date() };
-      setChatHistory(prev => [...prev, errorMessage]);
-      setUploadedFile(null);
-    } finally {
-      setIsLoading(false);
-      if(fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+    // Just save the file to state. No API call here.
+    setStagedFile(file);
+    
+    if(fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -100,14 +76,62 @@ function App() {
     event.preventDefault();
     if (!prompt.trim()) return;
 
-    const userMessage = { type: 'user', content: prompt, timestamp: new Date() };
-    setChatHistory(prevHistory => [...prevHistory, userMessage]);
-
     setIsLoading(true);
+    
+    // Create the user message object first
+    const userMessage = { type: 'user', content: prompt, timestamp: new Date() };
+    
+    // Clear the input field now that we have the prompt saved
     setPrompt('');
+
+    // --- THIS IS THE FIX ---
+    // Create a temporary array to hold all the new messages
+    const newMessages = [];
+    
+    // If a file is staged, add its indicator message to our array
+    if (stagedFile) {
+      const fileIndicator = { 
+        type: 'system', 
+        content: `${stagedFile.name}`, 
+        timestamp: new Date() 
+      };
+      newMessages.push(fileIndicator);
+    }
+    
+    // Add the user's actual message to our array
+    newMessages.push(userMessage);
+
+    // Now, update the chat history ONCE with all the new messages
+    setChatHistory(prevHistory => [...prevHistory, ...newMessages]);
+    // --- END OF FIX ---
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
+      
+      // Check if a file is staged for upload and send it
+      if (stagedFile) {
+        const formData = new FormData();
+        formData.append('file', stagedFile);
+        formData.append('sessionId', sessionId);
+
+        const uploadResponse = await fetch(`${apiUrl}/api/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`File upload failed! status: ${uploadResponse.status}`);
+        }
+
+        const uploadData = await uploadResponse.json();
+        console.log('Response from /api/upload:', uploadData);
+        
+        // Update the file state now that it's officially uploaded
+        setUploadedFile(stagedFile);
+        setStagedFile(null);
+      }
+
+      // Now, send the prompt to the /api/solve endpoint
       const response = await fetch(`${apiUrl}/api/solve`, {
         method: 'POST',
         headers: {
@@ -129,6 +153,7 @@ function App() {
         timestamp: new Date() 
       };
       
+      // Add the AI's final response to the history
       setChatHistory(prevHistory => [...prevHistory, aiMessage]);
 
       ReactGA.event({
@@ -147,46 +172,57 @@ function App() {
       setIsLoading(false);
     }
   };
-
   // --- THIS IS THE UPDATED FUNCTION ---
   const clearHistory = async () => {
     // Check if there is anything to clear OR if a file was uploaded,
     // as we still need to clear the backend session.
-    if (chatHistory.length === 0 && !uploadedFile) return;
+    if (chatHistory.length === 0 && !uploadedFile && !stagedFile) return;
 
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
-      // Call the backend endpoint to delete the session data from the database
-      const response = await fetch(`${apiUrl}/api/clear_session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sessionId: sessionId }),
-      });
+    // Add clearing animation to all messages
+    const messages = document.querySelectorAll('.message');
+    messages.forEach((message, index) => {
+      setTimeout(() => {
+        message.classList.add('clearing');
+      }, index * 100); // Stagger the animation
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to clear session on the server.');
+    // Wait for animation to complete before clearing
+    setTimeout(async () => {
+      try {
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
+        // Call the backend endpoint to delete the session data from the database
+        const response = await fetch(`${apiUrl}/api/clear_session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionId: sessionId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to clear session on the server.');
+        }
+
+        console.log('Session cleared on server.');
+
+      } catch (error) {
+        console.error("Error clearing session:", error);
+        // Optionally show an error in the chat
+        const errorMessage = { 
+          type: 'error', 
+          content: 'Could not clear the server session. Please try again.', 
+          timestamp: new Date() 
+        };
+        setChatHistory(prev => [...prev, errorMessage]);
+      } finally {
+        // This part runs regardless of the API call's success
+        // to ensure the frontend UI is always cleared.
+        setChatHistory([]);
+        setUploadedFile(null);
+        setStagedFile(null);
+        setSessionId(generateSessionId());
       }
-
-      console.log('Session cleared on server.');
-
-    } catch (error) {
-      console.error("Error clearing session:", error);
-      // Optionally show an error in the chat
-      const errorMessage = { 
-        type: 'error', 
-        content: 'Could not clear the server session. Please try again.', 
-        timestamp: new Date() 
-      };
-      setChatHistory(prev => [...prev, errorMessage]);
-    } finally {
-      // This part runs regardless of the API call's success
-      // to ensure the frontend UI is always cleared.
-      setChatHistory([]);
-      setUploadedFile(null);
-      setSessionId(generateSessionId());
-    }
+    }, chatHistory.length * 100 + 500); // Wait for all animations + extra time
   };
 
   const formatTimestamp = (timestamp) => {
@@ -215,43 +251,17 @@ function App() {
               </h1>
             </div>
             <p className="subtitle">Premium Math Help ⭐️</p>
-            <p className="subtitle">Powered by Wolfram Alpha API and Gemini API</p>
+            <p className="subtitle">Powered by Wolfram Alpha API and Gemini AI</p>
           </div>
         </header>
 
         <main className="main-content">
-          <div className={`chat-container ${uploadedFile ? 'has-document' : ''}`}>
+          <div className={`chat-container ${uploadedFile ? 'has-document' : ''} ${chatHistory.length > 0 ? 'has-messages' : ''}`}>
             <div className="chat-history">
               {chatHistory.length === 0 && (
                 <div className="welcome-message">
-                  {uploadedFile ? (
-                    <>
-                      <h3>📄 Document Analysis Ready!</h3>
-                      <p>Your document has been uploaded successfully. Ask me anything about it!</p>
-                      <div className="example-prompts">
-                        <p>Try asking about your document:</p>
-                        <ul>
-                          <li>"Summarize the main points"</li>
-                          <li>"What are the key qualifications mentioned?"</li>
-                          <li>"Extract all contact information"</li>
-                          <li>"What experience is highlighted?"</li>
-                        </ul>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <h3>Welcome to KnowIt AI!</h3>
-                      <p> All your questions will be answered here :)</p>
-                      <div className="example-prompts">
-                        <p>Try asking:</p>
-                        <ul>
-                          <li>Math: "Solve for x: 2x + 5 = 13"</li>
-                          <li>Math: "Simplify: 3x² + 6x - 5"</li>
-                          <li>Other: "What is the capital of France"</li>
-                        </ul>
-                      </div>
-                    </>
-                  )}
+                  <h3>Welcome to KnowIt AI!</h3>
+                  <p> All your questions will be answered here :)</p>
                 </div>
               )}
 
@@ -263,7 +273,19 @@ function App() {
                     {message.type === 'user' && (
                       <div className="user-message">
                         <div className="message-avatar">👤</div>
-                        <div className="message-text">{message.content}</div>
+                        <div className="message-text">
+                          {message.content}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File indicator as separate element above user message */}
+                    {message.type === 'file-indicator' && (
+                      <div className="file-indicator-container">
+                        <div className="file-indicator-box">
+                          <span className="file-icon">📄</span>
+                          <span className="file-name">{message.content}</span>
+                        </div>
                       </div>
                     )}
                     
@@ -296,13 +318,20 @@ function App() {
 
                     {message.type === 'system' && (
                         <div className="system-message">
-                            <span>{message.content}</span>
+                            <div className="system-message-content">
+                                <span className="file-icon">📄</span>
+                                <span>{message.content}</span>
+                            </div>
                         </div>
                     )}
+
+
                   </div>
-                  <div className="message-timestamp">
-                    {formatTimestamp(message.timestamp)}
-                  </div>
+                  {message.type !== 'system' && (
+                    <div className="message-timestamp">
+                      {formatTimestamp(message.timestamp)}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -328,6 +357,21 @@ function App() {
             </div>
             
             <div className="input-container">
+              {stagedFile && (
+                <div className="file-attachment">
+                  <div className="file-attachment-content">
+                    <span className="file-icon">📎</span>
+                    <span className="file-name">{stagedFile.name}</span>
+                    <button 
+                      className="remove-file-btn"
+                      onClick={() => setStagedFile(null)}
+                      title="Remove file"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="input-form">
                 <div className="input-wrapper">
                   <div className="more-options-dropdown">
@@ -387,7 +431,7 @@ function App() {
                         }
                       }
                     }}
-                    placeholder={uploadedFile ? "Ask a question about your document..." : "Ask me anything..."}
+                    placeholder={stagedFile || uploadedFile ? "Ask a question about your document..." : "Ask me anything..."}
                     disabled={isLoading}
                     className="chat-input"
                   />
@@ -406,11 +450,6 @@ function App() {
                   </button>
                 </div>
               </form>
-              {uploadedFile && (
-                <div className="file-indicator">
-                  <p>Active Document: {uploadedFile.name}</p>
-                </div>
-              )}
             </div>
           </div>
         </main>
