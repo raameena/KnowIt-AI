@@ -9,7 +9,7 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS sessions (session_id TEXT PRIMARY KEY, document_text TEXT)
     """)
-    logging.info("table created successfully")
+    logging.info("database created successfully")
     conn.commit()
     conn.close()
 
